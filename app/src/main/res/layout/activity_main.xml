@@ -6,14 +6,56 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/open_file_picker"
+    <LinearLayout
+        android:id="@+id/main_ll1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/choose_file"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/main_ll2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/open_file_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/choose_file" />
+
+        <TextView
+            android:id="@+id/selected_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="SELECTED FILE"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/main_ll2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/main_ll1">
+
+        <Button
+            android:id="@+id/search_metadata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/search_metadata" />
+
+        <Button
+            android:id="@+id/manually_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/manually_tag" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
