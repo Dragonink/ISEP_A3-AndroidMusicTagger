@@ -3,4 +3,5 @@
     <string name="choose_file">choose file</string>
     <string name="search_metadata">search metadata</string>
     <string name="manually_tag">manually tag</string>
+    <string name="revert_changes">Revert changes</string>
 </resources>

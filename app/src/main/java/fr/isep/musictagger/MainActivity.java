@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -14,8 +15,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Optional;
+
 public class MainActivity extends AppCompatActivity {
 
+    private Optional<Uri> uri = Optional.empty();
     private final ActivityResultLauncher<Object> chooseFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
         @Override
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(path[path.length - 1]);
         tv.setVisibility(View.VISIBLE);
         findViewById(R.id.main_ll2).setVisibility(View.VISIBLE);
+
+        this.uri = Optional.of(uri);
     });
 
     @Override
@@ -49,5 +55,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.open_file_picker).setOnClickListener(button -> chooseFile.launch(null));
+        findViewById(R.id.manually_tag).setOnClickListener(button -> {
+            if (uri.isPresent()) {
+                Intent intent = new Intent(this, TagActivity.class);
+                intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri.get());
+                startActivity(intent);
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage("No file selected.\nPlease select one before trying again.")
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .show();
+            }
+        });
     }
 }
