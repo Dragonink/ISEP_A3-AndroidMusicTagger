@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Music Tagger</string>
+    <string name="choose_file">choose file</string>
+</resources>
