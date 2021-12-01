@@ -23,14 +23,15 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<Object> chooseFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
         @Override
-        public Intent createIntent(@NonNull Context context, Object input) {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        public Intent createIntent(@NonNull final Context context, final Object input) {
+            final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("audio/mpeg");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
             return Intent.createChooser(intent, "Choose a music file");
         }
 
         @Override
-        public Uri parseResult(int resultCode, @Nullable Intent intent) {
+        public Uri parseResult(final int resultCode, @Nullable final Intent intent) {
             if (intent != null) {
                 return intent.getData();
             } else {
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.open_file_picker).setOnClickListener(button -> chooseFile.launch(null));
         findViewById(R.id.manually_tag).setOnClickListener(button -> {
             if (uri.isPresent()) {
-                Intent intent = new Intent(this, TagActivity.class);
+                final Intent intent = new Intent(this, TagActivity.class);
                 intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri.get());
                 startActivity(intent);
             } else {
