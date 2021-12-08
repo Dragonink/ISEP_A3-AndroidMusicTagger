@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="12dp"
+    android:paddingHorizontal="8dp">
+
+    <TextView
+        android:id="@+id/displayname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:text="Tag name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/imported_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:editable="false"
+        android:focusable="false"
+        android:hint="Imported value"
+        android:importantForAutofill="no"
+        android:inputType="none"
+        android:minHeight="48dp"
+        app:layout_constraintBottom_toTopOf="@id/local_value"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/copy_imported"
+        app:layout_constraintTop_toBottomOf="@id/displayname" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/copy_imported"
+        style="@style/MaterialIconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Replace local value by imported value"
+        app:icon="?attr/actionModeCopyDrawable"
+        app:layout_constraintBottom_toTopOf="@+id/reset_local"
+        app:layout_constraintLeft_toRightOf="@id/imported_value"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/displayname" />
+
+    <EditText
+        android:id="@+id/local_value"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Local value"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/reset_local"
+        app:layout_constraintTop_toBottomOf="@id/imported_value" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reset_local"
+        style="@style/MaterialIconButton.Outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Reset local value"
+        app:icon="@android:drawable/ic_menu_revert"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/local_value"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/copy_imported" />
+</androidx.constraintlayout.widget.ConstraintLayout>

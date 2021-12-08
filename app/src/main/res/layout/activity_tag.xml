@@ -6,7 +6,71 @@
     android:layout_height="match_parent"
     tools:context=".TagActivity">
 
-    <TableLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/title"
+        android:name="fr.isep.musictagger.fragments.StringTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:display_name="Title"
+        app:layout_constraintBottom_toTopOf="@id/artist"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/artist"
+        android:name="fr.isep.musictagger.fragments.StringTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:display_name="Artist"
+        app:layout_constraintBottom_toTopOf="@id/album"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/album"
+        android:name="fr.isep.musictagger.fragments.StringTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:display_name="Album"
+        app:layout_constraintBottom_toTopOf="@id/albumartist"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/artist" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/albumartist"
+        android:name="fr.isep.musictagger.fragments.StringTag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:display_name="Album Artist"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/album" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/action_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/activity_tag_action_save"
+            android:src="@android:drawable/ic_menu_save" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+    <!--<TableLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -15,16 +79,30 @@
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/local_title"
-                android:layout_width="match_parent"
+                android:id="@+id/local_disc"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:hint="Local Title"
+                android:hint="Local Disc number"
                 android:importantForAutofill="no"
-                android:inputType="text" />
+                android:inputType="number" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="/" />
+
+            <EditText
+                android:id="@+id/local_disctotal"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:hint="Local Disc total"
+                android:importantForAutofill="no"
+                android:inputType="number" />
 
             <ImageButton
+                android:id="@+id/reset_disc"
                 android:contentDescription="@string/revert_changes"
                 android:src="@android:drawable/ic_menu_revert" />
         </TableRow>
-    </TableLayout>
+    </TableLayout>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

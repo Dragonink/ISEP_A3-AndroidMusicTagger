@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Optional<Uri> uri = Optional.empty();
+    private Uri uri;
     private final ActivityResultLauncher<Object> chooseFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
         @Override
@@ -35,15 +35,14 @@ public class MainActivity extends AppCompatActivity {
             return Optional.ofNullable(intent).map(Intent::getData).orElse(null);
         }
     }, uri -> {
+        this.uri = uri;
         Log.d("App", String.format("Selected file %s", uri));
 
         TextView tv = findViewById(R.id.selected_file);
-        String[] path = uri.getLastPathSegment().split("/");
+        String[] path = uri.getLastPathSegment().replace(":", "/").split("/");
         tv.setText(path[path.length - 1]);
         tv.setVisibility(View.VISIBLE);
         findViewById(R.id.main_ll2).setVisibility(View.VISIBLE);
-
-        this.uri = Optional.of(uri);
     });
 
     @Override
@@ -53,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.open_file_picker).setOnClickListener(button -> chooseFile.launch(null));
         findViewById(R.id.manually_tag).setOnClickListener(button -> {
-            if (uri.isPresent()) {
+            if (Optional.ofNullable(uri).isPresent()) {
                 final Intent intent = new Intent(this, TagActivity.class);
-                intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri.get());
+                intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri);
                 startActivity(intent);
             } else {
                 new AlertDialog.Builder(this)
