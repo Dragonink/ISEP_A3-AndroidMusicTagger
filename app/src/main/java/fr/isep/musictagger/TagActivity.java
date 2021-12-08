@@ -41,11 +41,10 @@ public class TagActivity extends AppCompatActivity {
     }
 
     private void init() {
-        final Uri selectedFile = (Uri) getIntent().getParcelableExtra(INTENT_SELECTED_FILE);
+        final Uri selectedFile = getIntent().getParcelableExtra(INTENT_SELECTED_FILE);
         try {
-            final File f = new File(Objects.requireNonNull(PathUtils.getPath(this, selectedFile)));
-            final Mp3File file = new Mp3File(f);
-            originalMeta = Metadata.fromFile(file);
+            final String path = PathUtils.getPath(this, selectedFile);
+            originalMeta = new Metadata(path, getContentResolver().openInputStream(selectedFile));
         } catch (IOException e) {
             Log.e("App", "IO exception occurred", e);
             newAlertDialog("Sorry ! An error occurred while trying to open the file.");

@@ -32,11 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Uri parseResult(final int resultCode, @Nullable final Intent intent) {
-            if (intent != null) {
-                return intent.getData();
-            } else {
-                return null;
-            }
+            return Optional.ofNullable(intent).map(Intent::getData).orElse(null);
         }
     }, uri -> {
         Log.d("App", String.format("Selected file %s", uri));
