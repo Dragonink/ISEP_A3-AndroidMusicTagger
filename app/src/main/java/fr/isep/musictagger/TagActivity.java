@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import fr.isep.musictagger.fragments.ImageTag;
 import fr.isep.musictagger.fragments.PartOfSetTag;
 import fr.isep.musictagger.fragments.StringTag;
 
@@ -38,6 +39,7 @@ public class TagActivity extends AppCompatActivity {
     private String path;
     private Metadata metadata;
 
+    private ImageTag cover;
     private StringTag title;
     private StringTag artist;
     private StringTag album;
@@ -60,6 +62,7 @@ public class TagActivity extends AppCompatActivity {
         final FloatingActionButton fab = findViewById(R.id.action_save);
         fab.setEnabled(false);
 
+        metadata.setCover(cover.getValue(), "image/jpeg");
         metadata.setTitle(title.getValue());
         metadata.setArtist(artist.getValue());
         metadata.setAlbum(album.getValue());
@@ -91,12 +94,14 @@ public class TagActivity extends AppCompatActivity {
             Log.d("App", "Loaded file and its metadata");
 
             final FragmentManager fragmentManager = getSupportFragmentManager();
+            cover = (ImageTag) fragmentManager.findFragmentById(R.id.cover);
             title = (StringTag) fragmentManager.findFragmentById(R.id.title);
             artist = (StringTag) fragmentManager.findFragmentById(R.id.artist);
             album = (StringTag) fragmentManager.findFragmentById(R.id.album);
             albumArtist = (StringTag) fragmentManager.findFragmentById(R.id.albumartist);
             track = (PartOfSetTag) fragmentManager.findFragmentById(R.id.track);
             disc = (PartOfSetTag) fragmentManager.findFragmentById(R.id.disc);
+            metadata.getCover().ifPresent(Objects.requireNonNull(cover)::setDefaultValue);
             metadata.getTitle().ifPresent(Objects.requireNonNull(title)::setDefaultValue);
             metadata.getArtist().ifPresent(Objects.requireNonNull(artist)::setDefaultValue);
             metadata.getAlbum().ifPresent(Objects.requireNonNull(album)::setDefaultValue);

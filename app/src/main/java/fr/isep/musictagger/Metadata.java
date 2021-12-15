@@ -56,6 +56,19 @@ public class Metadata {
 
     private final File tmpFile;
     private final Mp3File file;
+
+    private byte[] cover;
+    private String coverMime;
+
+    public Optional<byte[]> getCover() {
+        return Optional.ofNullable(cover);
+    }
+
+    public void setCover(final byte[] cover, final String coverMime) {
+        this.cover = cover;
+        this.coverMime = coverMime;
+    }
+
     private String title;
 
     public Optional<String> getTitle() {
@@ -117,7 +130,8 @@ public class Metadata {
     }
 
     private void getId3v1(@NonNull ID3v1 id3v1) {
-        title = (id3v1.getTitle());
+        cover = null;
+        title = id3v1.getTitle();
         artist = id3v1.getArtist();
         album = id3v1.getAlbum();
         albumArtist = null;
@@ -126,6 +140,7 @@ public class Metadata {
     }
 
     private void getId3v2(@NonNull ID3v2 id3v2) {
+        cover = id3v2.getAlbumImage();
         title = id3v2.getTitle();
         artist = id3v2.getArtist();
         album = id3v2.getAlbum();
@@ -159,6 +174,7 @@ public class Metadata {
 
     public void save(@NonNull OutputStream stream) throws IOException {
         final ID3v2 id3v2 = file.getId3v2Tag();
+        id3v2.setAlbumImage(cover, coverMime);
         id3v2.setTitle(title);
         id3v2.setArtist(artist);
         id3v2.setAlbum(album);

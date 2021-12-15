@@ -21,6 +21,17 @@
             android:layout_marginBottom="64dp">
 
             <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/cover"
+                android:name="fr.isep.musictagger.fragments.ImageTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Album cover"
+                app:layout_constraintBottom_toTopOf="@id/title"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/title"
                 android:name="fr.isep.musictagger.fragments.StringTag"
                 android:layout_width="match_parent"
@@ -29,7 +40,7 @@
                 app:layout_constraintBottom_toTopOf="@id/artist"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/cover" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/artist"

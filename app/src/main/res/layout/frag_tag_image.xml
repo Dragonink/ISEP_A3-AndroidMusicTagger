@@ -18,17 +18,17 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
+    <ImageView
         android:id="@+id/imported_value"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:editable="false"
+        android:layout_height="0dp"
+        android:layout_weight="47"
+        android:background="@android:color/darker_gray"
         android:focusable="false"
         android:hint="Imported value"
-        android:importantForAutofill="no"
-        android:inputType="none"
-        android:minHeight="48dp"
-        app:layout_constraintBottom_toTopOf="@id/local_value"
+        android:minHeight="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/copy_imported"
         app:layout_constraintTop_toBottomOf="@id/displayname" />
@@ -42,21 +42,8 @@
         app:icon="?attr/actionModeCopyDrawable"
         app:layout_constraintBottom_toTopOf="@id/reset_local"
         app:layout_constraintLeft_toRightOf="@id/imported_value"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/local_value"
         app:layout_constraintTop_toBottomOf="@id/displayname" />
-
-    <EditText
-        android:id="@+id/local_value"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Local value"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:minHeight="48dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/reset_local"
-        app:layout_constraintTop_toBottomOf="@id/imported_value" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/reset_local"
@@ -65,8 +52,36 @@
         android:layout_height="wrap_content"
         android:contentDescription="Reset local value"
         app:icon="@android:drawable/ic_menu_revert"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/local_value"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/clear_local"
+        app:layout_constraintLeft_toRightOf="@id/imported_value"
+        app:layout_constraintRight_toLeftOf="@id/local_value"
         app:layout_constraintTop_toBottomOf="@id/copy_imported" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/clear_local"
+        style="@style/MaterialIconButton.Outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Clear local value"
+        app:icon="@android:drawable/ic_delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/imported_value"
+        app:layout_constraintRight_toLeftOf="@id/local_value"
+        app:layout_constraintTop_toBottomOf="@id/reset_local" />
+
+    <ImageView
+        android:id="@+id/local_value"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="47"
+        android:background="@android:color/darker_gray"
+        android:hint="Local value"
+        android:minHeight="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="H,1:1"
+        app:layout_constraintLeft_toRightOf="@id/reset_local"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/displayname" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
