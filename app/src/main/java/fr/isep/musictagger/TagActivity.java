@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import fr.isep.musictagger.fragments.PartOfSetTag;
 import fr.isep.musictagger.fragments.StringTag;
 
 public class TagActivity extends AppCompatActivity {
@@ -41,6 +42,8 @@ public class TagActivity extends AppCompatActivity {
     private StringTag artist;
     private StringTag album;
     private StringTag albumArtist;
+    private PartOfSetTag track;
+    private PartOfSetTag disc;
 
     private void newAlertDialog(String text) {
         new AlertDialog.Builder(this)
@@ -61,10 +64,13 @@ public class TagActivity extends AppCompatActivity {
         metadata.setArtist(artist.getValue());
         metadata.setAlbum(album.getValue());
         metadata.setAlbumArtist(albumArtist.getValue());
+        metadata.setTrack(track.getValue());
+        metadata.setDisc(disc.getValue());
 
         try {
             fab.setImageDrawable(null);
             ((ProgressBar) findViewById(R.id.progress)).setVisibility(View.VISIBLE);
+            // FIXME
             final Uri uri = Uri.parse("file://" + path);
             final OutputStream stream = getContentResolver().openOutputStream(uri, "wt");
             metadata.save(stream);
@@ -89,10 +95,14 @@ public class TagActivity extends AppCompatActivity {
             artist = (StringTag) fragmentManager.findFragmentById(R.id.artist);
             album = (StringTag) fragmentManager.findFragmentById(R.id.album);
             albumArtist = (StringTag) fragmentManager.findFragmentById(R.id.albumartist);
+            track = (PartOfSetTag) fragmentManager.findFragmentById(R.id.track);
+            disc = (PartOfSetTag) fragmentManager.findFragmentById(R.id.disc);
             metadata.getTitle().ifPresent(Objects.requireNonNull(title)::setDefaultValue);
             metadata.getArtist().ifPresent(Objects.requireNonNull(artist)::setDefaultValue);
             metadata.getAlbum().ifPresent(Objects.requireNonNull(album)::setDefaultValue);
             metadata.getAlbumArtist().ifPresent(Objects.requireNonNull(albumArtist)::setDefaultValue);
+            metadata.getTrack().ifPresent(Objects.requireNonNull(track)::setDefaultValue);
+            metadata.getDisc().ifPresent(Objects.requireNonNull(disc)::setDefaultValue);
         } catch (IOException e) {
             Log.e("App", "IO exception occurred", e);
             newAlertDialog("Sorry ! An error occurred while trying to open the file.");

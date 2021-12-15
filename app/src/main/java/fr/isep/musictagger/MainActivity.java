@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Intent createIntent(@NonNull final Context context, final Object input) {
-            final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            final Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("audio/mpeg");
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             return Intent.createChooser(intent, "Choose a music file");

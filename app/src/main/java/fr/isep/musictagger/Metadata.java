@@ -1,6 +1,5 @@
 package fr.isep.musictagger;
 
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -9,7 +8,6 @@ import com.mpatric.mp3agic.ID3v1;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.NotSupportedException;
 import com.mpatric.mp3agic.UnsupportedTagException;
 
 import java.io.File;
@@ -38,7 +36,7 @@ public class Metadata {
             return number;
         }
 
-        private PartOfSet(@NonNull String s) {
+        public PartOfSet(@NonNull String s) {
             String[] split = s.split("/");
 
             number = Integer.parseInt(split[0]);
@@ -64,7 +62,7 @@ public class Metadata {
         return Optional.ofNullable(title);
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -74,7 +72,7 @@ public class Metadata {
         return Optional.ofNullable(artist);
     }
 
-    public void setArtist(String artist) {
+    public void setArtist(final String artist) {
         this.artist = artist;
     }
 
@@ -84,7 +82,7 @@ public class Metadata {
         return Optional.ofNullable(album);
     }
 
-    public void setAlbum(String album) {
+    public void setAlbum(final String album) {
         this.album = album;
     }
 
@@ -94,8 +92,18 @@ public class Metadata {
         return Optional.ofNullable(albumArtist);
     }
 
-    public void setAlbumArtist(String albumArtist) {
+    public void setAlbumArtist(final String albumArtist) {
         this.albumArtist = albumArtist;
+    }
+
+    private PartOfSet track;
+
+    public Optional<PartOfSet> getTrack() {
+        return Optional.ofNullable(track);
+    }
+
+    public void setTrack(final PartOfSet track) {
+        this.track = track;
     }
 
     private PartOfSet disc;
@@ -104,11 +112,16 @@ public class Metadata {
         return Optional.ofNullable(disc);
     }
 
+    public void setDisc(final PartOfSet disc) {
+        this.disc = disc;
+    }
+
     private void getId3v1(@NonNull ID3v1 id3v1) {
-        title = id3v1.getTitle();
+        title = (id3v1.getTitle());
         artist = id3v1.getArtist();
         album = id3v1.getAlbum();
         albumArtist = null;
+        track = Optional.ofNullable(id3v1.getTrack()).map(PartOfSet::new).orElse(null);
         disc = null;
     }
 
@@ -117,6 +130,7 @@ public class Metadata {
         artist = id3v2.getArtist();
         album = id3v2.getAlbum();
         albumArtist = id3v2.getAlbumArtist();
+        track = Optional.ofNullable(id3v2.getTrack()).map(PartOfSet::new).orElse(null);
         disc = Optional.ofNullable(id3v2.getPartOfSet()).map(PartOfSet::new).orElse(null);
     }
 
@@ -149,6 +163,8 @@ public class Metadata {
         id3v2.setArtist(artist);
         id3v2.setAlbum(album);
         id3v2.setAlbumArtist(albumArtist);
+        getTrack().ifPresent(track -> id3v2.setTrack(track.toString()));
+        getDisc().ifPresent(disc -> id3v2.setPartOfSet(disc.toString()));
 
         Files.copy(tmpFile.toPath(), stream);
         stream.flush();
