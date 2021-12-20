@@ -33,6 +33,7 @@ import fr.isep.musictagger.fragments.StringTag;
 public class TagActivity extends AppCompatActivity {
 
     public static final String INTENT_SELECTED_FILE = "selectedFile";
+    public static final String INTENT_IMPORTED_METADATA = "recording";
 
     private final Predicate<String> checkPermission = perm -> checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED;
 

@@ -5,4 +5,5 @@
     <string name="manually_tag">manually tag</string>
     <string name="revert_changes">Revert changes</string>
     <string name="activity_tag_action_save">Save changes into file</string>
+    <string name="search">Search</string>
 </resources>
