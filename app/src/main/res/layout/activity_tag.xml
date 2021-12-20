@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".TagActivity">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="64dp">
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/cover"
+                android:name="fr.isep.musictagger.fragments.ImageTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Album cover"
+                app:layout_constraintBottom_toTopOf="@id/title"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/title"
+                android:name="fr.isep.musictagger.fragments.StringTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Title"
+                app:layout_constraintBottom_toTopOf="@id/artist"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cover" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/artist"
+                android:name="fr.isep.musictagger.fragments.StringTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Artist"
+                app:layout_constraintBottom_toTopOf="@id/album"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/album"
+                android:name="fr.isep.musictagger.fragments.StringTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Album"
+                app:layout_constraintBottom_toTopOf="@id/albumartist"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/artist" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/albumartist"
+                android:name="fr.isep.musictagger.fragments.StringTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Album Artist"
+                app:layout_constraintBottom_toTopOf="@id/track"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/album" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/track"
+                android:name="fr.isep.musictagger.fragments.PartOfSetTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Track number"
+                app:layout_constraintBottom_toTopOf="@id/disc"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/albumartist" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/disc"
+                android:name="fr.isep.musictagger.fragments.PartOfSetTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:display_name="Disc number"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/track" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/action_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/activity_tag_action_save"
+            android:src="@android:drawable/ic_menu_save" />
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
