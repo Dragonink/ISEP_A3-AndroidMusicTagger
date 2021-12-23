@@ -2,6 +2,5 @@
 <resources>
     <declare-styleable name="Tag">
         <attr name="display_name" format="string" />
-        <attr name="default_value" format="string" />
     </declare-styleable>
 </resources>

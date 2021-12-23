@@ -1,15 +1,9 @@
 package fr.isep.musictagger;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,11 +11,12 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.material.button.MaterialButton;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import fr.isep.musictagger.api.MusicBrainzApi;
@@ -31,12 +26,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SearchActivity extends AppCompatActivity {
-    private RecordingResults recordings;
-
     private static class ResultAdapter extends RecyclerView.Adapter<ResultAdapter.ViewHolder> {
         private final Context ctx;
-        private final Serializable uri;
-        private final List<RecordingResults.Recording> recordings;
+        private final Parcelable uri;
+        private final RecordingResults recordings;
 
         private static class ViewHolder extends RecyclerView.ViewHolder {
             public View view;
@@ -54,7 +47,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
 
-        public ResultAdapter(final Context ctx, final Serializable uri, final List<RecordingResults.Recording> recordings) {
+        public ResultAdapter(final Context ctx, final Parcelable uri, final RecordingResults recordings) {
             this.ctx = ctx;
             this.uri = uri;
             this.recordings = recordings;
@@ -69,10 +62,10 @@ public class SearchActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder view, final int position) {
-            final RecordingResults.Recording recording = recordings.get(position);
+            final RecordingResults.Recording recording = recordings.recordings.get(position);
 
             view.title.setText(recording.title);
-            view.artist.setText(recording.artists());
+            Optional.ofNullable(recording.artistCredit).ifPresent(val -> view.artist.setText(RecordingResults.Recording.ArtistCredit.credit(val)));
             view.album.setText(recording.release.title);
             view.view.setOnClickListener(_view -> {
                 final Intent intent = new Intent(ctx, TagActivity.class);
@@ -84,7 +77,7 @@ public class SearchActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return recordings.size();
+            return recordings.recordings.size();
         }
     }
 
@@ -93,27 +86,33 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(bundle);
         setContentView(R.layout.activity_search);
 
+        final Parcelable uri = getIntent().getParcelableExtra(TagActivity.INTENT_SELECTED_FILE);
+
         final RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
-        recycler.setAdapter(new ResultAdapter(this, bundle.getSerializable(TagActivity.INTENT_SELECTED_FILE), recordings.recordings));
 
-        ((MaterialButton) findViewById(R.id.search_button)).setOnClickListener(btn -> {
+        findViewById(R.id.search_button).setOnClickListener(btn -> {
             final Context ctx = this;
             final EditText editText = findViewById(R.id.searchbar);
             if (editText.getText().length() > 0) {
+                btn.setEnabled(false);
                 MusicBrainzApi.SERVICE.search(editText.getText().toString()).enqueue(new Callback<RecordingResults>() {
                     @Override
                     public void onResponse(@NonNull Call<RecordingResults> call, @NonNull Response<RecordingResults> response) {
-                        recordings = Optional.ofNullable(response.body()).map(RecordingResults::new).orElse(null);
+                        Optional.ofNullable(response.body())
+                                .map(RecordingResults::new)
+                                .ifPresent(recordings -> recycler.setAdapter(new ResultAdapter(ctx, uri, recordings)));
+                        btn.setEnabled(true);
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<RecordingResults> call, @NonNull Throwable t) {
-                        Log.e("App", "An error occurred while trying to request from API", t);
+                        Log.e("App", String.format("GET %s failure", call.request().url()), t);
                         new AlertDialog.Builder(ctx)
                                 .setMessage("Sorry ! Something went wrong. Please try again.")
                                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                                 .show();
+                        btn.setEnabled(true);
                     }
                 });
             } else {

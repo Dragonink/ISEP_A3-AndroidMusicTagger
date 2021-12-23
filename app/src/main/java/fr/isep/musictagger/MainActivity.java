@@ -49,23 +49,21 @@ public class MainActivity extends AppCompatActivity {
     private @Nullable
     Intent navigate(Class<?> cls) {
         if (Optional.ofNullable(uri).isPresent()) {
-            final Intent intent = new Intent(this, TagActivity.class);
+            final Intent intent = new Intent(this, cls);
             intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri);
             return intent;
         } else {
             new AlertDialog.Builder(this)
                     .setMessage("No file selected.\nPlease select one before trying again.")
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                     .show();
             return null;
         }
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(final Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.open_file_picker).setOnClickListener(button -> chooseFile.launch(null));

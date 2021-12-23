@@ -2,16 +2,20 @@ package fr.isep.musictagger;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -22,13 +26,19 @@ import com.mpatric.mp3agic.UnsupportedTagException;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import fr.isep.musictagger.api.CoverArtArchiveApi;
+import fr.isep.musictagger.api.RecordingResults;
 import fr.isep.musictagger.fragments.ImageTag;
 import fr.isep.musictagger.fragments.PartOfSetTag;
 import fr.isep.musictagger.fragments.StringTag;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TagActivity extends AppCompatActivity {
 
@@ -36,9 +46,43 @@ public class TagActivity extends AppCompatActivity {
     public static final String INTENT_IMPORTED_METADATA = "recording";
 
     private final Predicate<String> checkPermission = perm -> checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED;
+    private final ActivityResultLauncher<Object> saveFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull final Context context, final Object input) {
+            final Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.setType("audio/mpeg");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            metadata.getTitle().ifPresent(title -> intent.putExtra(Intent.EXTRA_TITLE, title));
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, path);
+            return Intent.createChooser(intent, "Choose a save location");
+        }
+
+        @Override
+        public Uri parseResult(final int resultCode, @Nullable final Intent intent) {
+            return Optional.ofNullable(intent).map(Intent::getData).orElse(null);
+        }
+    }, uri -> {
+        Log.d("App", String.format("Selected location %s", uri));
+
+        try {
+            final OutputStream os = this.getContentResolver().openOutputStream(uri, "wt");
+            this.metadata.save(os);
+            Log.i("App", "File saved");
+            Toast.makeText(this, "File saved !", Toast.LENGTH_SHORT).show();
+            finish();
+        } catch (IOException e) {
+            Log.e("App", "IO exception occurred", e);
+            new AlertDialog.Builder(this)
+                    .setMessage("Sorry ! An error occurred while trying to save the file.")
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
+    });
 
     private String path;
     private Metadata metadata;
+    private String coverMime;
 
     private ImageTag cover;
     private StringTag title;
@@ -63,7 +107,7 @@ public class TagActivity extends AppCompatActivity {
         final FloatingActionButton fab = findViewById(R.id.action_save);
         fab.setEnabled(false);
 
-        metadata.setCover(cover.getValue(), "image/jpeg");
+        metadata.setCover(cover.getValue(), coverMime);
         metadata.setTitle(title.getValue());
         metadata.setArtist(artist.getValue());
         metadata.setAlbum(album.getValue());
@@ -71,37 +115,50 @@ public class TagActivity extends AppCompatActivity {
         metadata.setTrack(track.getValue());
         metadata.setDisc(disc.getValue());
 
-        try {
-            fab.setImageDrawable(null);
-            ((ProgressBar) findViewById(R.id.progress)).setVisibility(View.VISIBLE);
-            // FIXME
-            final Uri uri = Uri.parse("file://" + path);
-            final OutputStream stream = getContentResolver().openOutputStream(uri, "wt");
-            metadata.save(stream);
-            Log.i("App", "File saved");
-            Toast.makeText(this, "File saved !", Toast.LENGTH_SHORT).show();
-            finish();
-        } catch (IOException e) {
-            Log.e("App", "IO exception occurred", e);
-            newAlertDialog("Sorry ! An error occurred while trying to write the file.");
-        }
+        fab.setImageDrawable(null);
+        findViewById(R.id.progress).setVisibility(View.VISIBLE);
+        saveFile.launch(null);
     }
 
     private void init() {
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        cover = (ImageTag) fragmentManager.findFragmentById(R.id.cover);
+        title = (StringTag) fragmentManager.findFragmentById(R.id.title);
+        artist = (StringTag) fragmentManager.findFragmentById(R.id.artist);
+        album = (StringTag) fragmentManager.findFragmentById(R.id.album);
+        albumArtist = (StringTag) fragmentManager.findFragmentById(R.id.albumartist);
+        track = (PartOfSetTag) fragmentManager.findFragmentById(R.id.track);
+        disc = (PartOfSetTag) fragmentManager.findFragmentById(R.id.disc);
+
+        Optional.ofNullable((RecordingResults.Recording) getIntent().getSerializableExtra(INTENT_IMPORTED_METADATA)).ifPresent(recording -> {
+            Optional.ofNullable(recording.release.releaseGroup).map(album -> album.id).ifPresent(id -> CoverArtArchiveApi.SERVICE.get(id).enqueue(new Callback<byte[]>() {
+                @Override
+                public void onResponse(@NonNull Call<byte[]> call, @NonNull Response<byte[]> response) {
+                    cover.setImportedValue(response.body());
+                    coverMime = response.headers().get("Content-Type");
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<byte[]> call, @NonNull Throwable t) {
+                    Log.w("App", String.format("GET %s failure", call.request().url()), t);
+                }
+            }));
+            title.setImportedValue(recording.title);
+            Optional.ofNullable(recording.artistCredit).ifPresent(val -> artist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
+            album.setImportedValue(Optional.ofNullable(recording.release.releaseGroup).map(album -> album.title).orElse(recording.release.title));
+            Optional.ofNullable(recording.release.artistCredits).ifPresent(val -> albumArtist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
+            Optional.ofNullable(recording.release.media.get(0)).ifPresent(medium -> {
+                disc.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d", medium.position)));
+                track.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d/%d", medium.trackOffset + 1, medium.trackCount)));
+            });
+        });
+
         final Uri uri = getIntent().getParcelableExtra(INTENT_SELECTED_FILE);
         try {
             path = PathUtils.getPath(this, uri);
             metadata = new Metadata(getContentResolver().openInputStream(uri));
             Log.d("App", "Loaded file and its metadata");
 
-            final FragmentManager fragmentManager = getSupportFragmentManager();
-            cover = (ImageTag) fragmentManager.findFragmentById(R.id.cover);
-            title = (StringTag) fragmentManager.findFragmentById(R.id.title);
-            artist = (StringTag) fragmentManager.findFragmentById(R.id.artist);
-            album = (StringTag) fragmentManager.findFragmentById(R.id.album);
-            albumArtist = (StringTag) fragmentManager.findFragmentById(R.id.albumartist);
-            track = (PartOfSetTag) fragmentManager.findFragmentById(R.id.track);
-            disc = (PartOfSetTag) fragmentManager.findFragmentById(R.id.disc);
             metadata.getCover().ifPresent(Objects.requireNonNull(cover)::setDefaultValue);
             metadata.getTitle().ifPresent(Objects.requireNonNull(title)::setDefaultValue);
             metadata.getArtist().ifPresent(Objects.requireNonNull(artist)::setDefaultValue);
@@ -132,7 +189,7 @@ public class TagActivity extends AppCompatActivity {
                 newAlertDialog("Cannot access storage without permission.\nPlease grant storage permission to use this app.");
             }
         });
-        ((FloatingActionButton) findViewById(R.id.action_save)).setOnClickListener(btn -> {
+        findViewById(R.id.action_save).setOnClickListener(btn -> {
             if (!checkPermission.test(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 writePermissionDialog.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
             } else {
@@ -142,8 +199,8 @@ public class TagActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(final Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.activity_tag);
 
         if (!checkPermission.test(Manifest.permission.READ_EXTERNAL_STORAGE)) {

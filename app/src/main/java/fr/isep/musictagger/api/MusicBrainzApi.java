@@ -25,8 +25,4 @@ public interface MusicBrainzApi {
     @Headers({USER_AGENT, ACCEPT})
     @GET("recording")
     Call<RecordingResults> search(@Query("query") final String query);
-
-    @Headers({USER_AGENT, ACCEPT})
-    @GET("recording/{id}?inc=artist-credits+releases")
-    Call<Object> get(@Path("id") final String id);
 }

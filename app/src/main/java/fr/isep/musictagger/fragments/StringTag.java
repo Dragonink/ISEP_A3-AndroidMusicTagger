@@ -3,13 +3,11 @@ package fr.isep.musictagger.fragments;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,9 +24,14 @@ public class StringTag extends Fragment {
 
     private String displayName;
     private String defaultValue;
+    private String importedValue;
 
     public void setDefaultValue(final String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public void setImportedValue(final String importedValue) {
+        this.importedValue = importedValue;
     }
 
     public String getValue() {
@@ -47,6 +50,7 @@ public class StringTag extends Fragment {
         if (args != null) {
             displayName = args.getString("display_name");
             defaultValue = args.getString("default_value");
+            importedValue = args.getString("imported_value");
         }
     }
 
@@ -56,7 +60,6 @@ public class StringTag extends Fragment {
 
         TypedArray array = ctx.obtainStyledAttributes(attrs, R.styleable.Tag);
         displayName = array.getString(R.styleable.Tag_display_name);
-        defaultValue = array.getString(R.styleable.Tag_default_value);
         array.recycle();
     }
 
@@ -67,16 +70,19 @@ public class StringTag extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle bundle) {
-        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
-        final Editable importedValue = ((EditText) view.findViewById(R.id.imported_value)).getText();
         final MaterialButton copyImported = view.findViewById(R.id.copy_imported);
         final EditText localValue = view.findViewById(R.id.local_value);
-        if (importedValue.length() > 0) {
-            copyImported.setOnClickListener(btn -> localValue.setText(importedValue));
-        } else {
-            copyImported.setEnabled(false);
-        }
         final MaterialButton reset = view.findViewById(R.id.reset_local);
+
+        copyImported.setEnabled(false);
+        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
+        Optional.ofNullable(this.importedValue).ifPresent(val -> {
+            ((EditText) view.findViewById(R.id.imported_value)).setText(val);
+            if (val.length() > 0) {
+                copyImported.setOnClickListener(btn -> localValue.setText(importedValue));
+                copyImported.setEnabled(true);
+            }
+        });
         reset.setOnClickListener(btn -> localValue.setText(defaultValue));
         reset.callOnClick();
     }

@@ -3,13 +3,11 @@ package fr.isep.musictagger.fragments;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,9 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import fr.isep.musictagger.Metadata;
 import fr.isep.musictagger.R;
@@ -29,9 +25,14 @@ public class PartOfSetTag extends Fragment {
 
     private String displayName;
     private Metadata.PartOfSet defaultValue;
+    private Metadata.PartOfSet importedValue;
 
     public void setDefaultValue(final Metadata.PartOfSet defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public void setImportedValue(final Metadata.PartOfSet importedValue) {
+        this.importedValue = importedValue;
     }
 
     public Metadata.PartOfSet getValue() {
@@ -53,6 +54,7 @@ public class PartOfSetTag extends Fragment {
         if (args != null) {
             displayName = args.getString("display_name");
             defaultValue = new Metadata.PartOfSet(args.getString("default_value"));
+            importedValue = new Metadata.PartOfSet(args.getString("imported_value"));
         }
     }
 
@@ -62,7 +64,6 @@ public class PartOfSetTag extends Fragment {
 
         TypedArray array = ctx.obtainStyledAttributes(attrs, R.styleable.Tag);
         displayName = array.getString(R.styleable.Tag_display_name);
-        defaultValue = Optional.ofNullable(array.getString(R.styleable.Tag_default_value)).map(Metadata.PartOfSet::new).orElse(null);
         array.recycle();
     }
 
@@ -73,21 +74,22 @@ public class PartOfSetTag extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle bundle) {
-        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
-        final Editable importedValue = ((EditText) view.findViewById(R.id.imported_value)).getText();
-        final Editable importedTotal = ((EditText) view.findViewById(R.id.imported_total)).getText();
         final MaterialButton copyImported = view.findViewById(R.id.copy_imported);
         final EditText localValue = view.findViewById(R.id.local_value);
         final EditText localTotal = view.findViewById(R.id.local_total);
-        if (importedValue.length() > 0) {
-            copyImported.setOnClickListener(btn -> {
-                localValue.setText(importedValue);
-                localTotal.setText(importedTotal);
-            });
-        } else {
-            copyImported.setEnabled(false);
-        }
         final MaterialButton reset = view.findViewById(R.id.reset_local);
+
+        copyImported.setEnabled(false);
+        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
+        Optional.ofNullable(this.importedValue).ifPresent(val -> {
+            ((EditText) view.findViewById(R.id.imported_value)).setText(String.valueOf(val.getNumber()));
+            val.getTotal().ifPresent(total -> ((EditText) view.findViewById(R.id.imported_total)).setText(String.valueOf(total)));
+            copyImported.setOnClickListener(btn -> {
+                localValue.setText(val.getNumber());
+                val.getTotal().ifPresent(total -> localTotal.setText(String.valueOf(total)));
+            });
+            copyImported.setEnabled(true);
+        });
         reset.setOnClickListener(btn -> {
             final Optional<Metadata.PartOfSet> defaultValue = Optional.ofNullable(this.defaultValue);
             localValue.setText(defaultValue.map(val -> String.valueOf(val.getNumber())).orElse(null));
