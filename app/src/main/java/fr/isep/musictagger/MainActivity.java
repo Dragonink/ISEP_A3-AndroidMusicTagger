@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,25 +46,28 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.main_ll2).setVisibility(View.VISIBLE);
     });
 
+    private @Nullable
+    Intent navigate(Class<?> cls) {
+        if (Optional.ofNullable(uri).isPresent()) {
+            final Intent intent = new Intent(this, cls);
+            intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri);
+            return intent;
+        } else {
+            new AlertDialog.Builder(this)
+                    .setMessage("No file selected.\nPlease select one before trying again.")
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                    .show();
+            return null;
+        }
+    }
+
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(final Bundle bundle) {
+        super.onCreate(bundle);
         setContentView(R.layout.activity_main);
 
         findViewById(R.id.open_file_picker).setOnClickListener(button -> chooseFile.launch(null));
-        findViewById(R.id.manually_tag).setOnClickListener(button -> {
-            if (Optional.ofNullable(uri).isPresent()) {
-                final Intent intent = new Intent(this, TagActivity.class);
-                intent.putExtra(TagActivity.INTENT_SELECTED_FILE, uri);
-                startActivity(intent);
-            } else {
-                new AlertDialog.Builder(this)
-                        .setMessage("No file selected.\nPlease select one before trying again.")
-                        .setPositiveButton("OK", (dialog, which) -> {
-                            dialog.dismiss();
-                        })
-                        .show();
-            }
-        });
+        findViewById(R.id.search_metadata).setOnClickListener(button -> startActivity(navigate(SearchActivity.class)));
+        findViewById(R.id.manually_tag).setOnClickListener(button -> startActivity(navigate(TagActivity.class)));
     }
 }

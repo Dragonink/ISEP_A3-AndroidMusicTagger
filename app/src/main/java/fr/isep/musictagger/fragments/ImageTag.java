@@ -9,14 +9,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,7 +36,9 @@ public class ImageTag extends Fragment {
     public static final int FRAGMENT = R.layout.frag_tag_image;
 
     private Context context;
-    private ImageView image;
+    private ImageView importedImage;
+    private ImageView localImage;
+    private MaterialButton copyImported;
     private final ActivityResultLauncher<Object> chooseFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
         @Override
@@ -59,7 +58,7 @@ public class ImageTag extends Fragment {
 
         try {
             final InputStream is = context.getContentResolver().openInputStream(uri);
-            image.setImageDrawable(Drawable.createFromStream(is, uri.toString()));
+            localImage.setImageDrawable(Drawable.createFromStream(is, uri.toString()));
         } catch (FileNotFoundException e) {
             Log.e("App", "Could not open image", e);
         }
@@ -67,9 +66,23 @@ public class ImageTag extends Fragment {
 
     private String displayName;
     private byte[] defaultValue;
+    private byte[] importedValue;
 
     public void setDefaultValue(final byte[] defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public void setImportedValue(final byte[] importedValue) {
+        this.importedValue = importedValue;
+
+        Optional.ofNullable(importedImage).ifPresent(importedImage -> {
+            if (Optional.ofNullable(importedValue).isPresent()) {
+                importedImage.setImageBitmap(BitmapFactory.decodeByteArray(importedValue, 0, importedValue.length));
+            } else {
+                importedImage.setImageDrawable(null);
+            }
+        });
+        Optional.ofNullable(copyImported).ifPresent(copyImported -> copyImported.setEnabled(Optional.ofNullable(importedValue).isPresent()));
     }
 
     public byte[] getValue() {
@@ -90,6 +103,7 @@ public class ImageTag extends Fragment {
         if (args != null) {
             displayName = args.getString("display_name");
             defaultValue = args.getByteArray("default_value");
+            importedValue = args.getByteArray("imported_value");
         }
     }
 
@@ -113,7 +127,6 @@ public class ImageTag extends Fragment {
 
         TypedArray array = ctx.obtainStyledAttributes(attrs, R.styleable.Tag);
         displayName = array.getString(R.styleable.Tag_display_name);
-        // defaultValue = array.getDrawable(R.styleable.Tag_default_value);
         array.recycle();
     }
 
@@ -124,19 +137,18 @@ public class ImageTag extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle bundle) {
-        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
-        final Drawable importedValue = ((ImageView) view.findViewById(R.id.imported_value)).getDrawable();
-        final MaterialButton copyImported = view.findViewById(R.id.copy_imported);
-        image = view.findViewById(R.id.local_value);
-        if (importedValue != null) {
-            copyImported.setOnClickListener(btn -> image.setImageDrawable(importedValue));
-        } else {
-            copyImported.setEnabled(false);
-        }
-        image.setOnClickListener(image -> chooseFile.launch(null));
+        importedImage = view.findViewById(R.id.imported_value);
+        localImage = view.findViewById(R.id.local_value);
+        copyImported = view.findViewById(R.id.copy_imported);
         final MaterialButton reset = view.findViewById(R.id.reset_local);
-        reset.setOnClickListener(btn -> image.setImageBitmap(BitmapFactory.decodeByteArray(defaultValue, 0, defaultValue.length)));
+
+        copyImported.setEnabled(false);
+        Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
+        Optional.ofNullable(importedValue).ifPresent(this::setImportedValue);
+        localImage.setOnClickListener(image -> chooseFile.launch(null));
+        copyImported.setOnClickListener(btn -> localImage.setImageDrawable(importedImage.getDrawable()));
+        reset.setOnClickListener(btn -> localImage.setImageBitmap(BitmapFactory.decodeByteArray(defaultValue, 0, defaultValue.length)));
         reset.callOnClick();
-        ((MaterialButton) view.findViewById(R.id.clear_local)).setOnClickListener(btn -> image.setImageDrawable(null));
+        view.findViewById(R.id.clear_local).setOnClickListener(btn -> localImage.setImageDrawable(null));
     }
 }
