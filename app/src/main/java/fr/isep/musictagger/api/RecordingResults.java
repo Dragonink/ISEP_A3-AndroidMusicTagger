@@ -28,11 +28,6 @@ public class RecordingResults implements Serializable {
         }
 
         public static class Release implements Serializable {
-            public static class ReleaseGroup implements Serializable {
-                public String id;
-                public String title;
-            }
-
             public static class Medium implements Serializable {
                 public int position;
                 @SerializedName("track-count")
@@ -41,9 +36,8 @@ public class RecordingResults implements Serializable {
                 public int trackOffset;
             }
 
+            public String id;
             public String title;
-            @SerializedName("release-group")
-            public ReleaseGroup releaseGroup;
             @SerializedName("artist-credit")
             public List<ArtistCredit> artistCredits;
             public List<Medium> media;

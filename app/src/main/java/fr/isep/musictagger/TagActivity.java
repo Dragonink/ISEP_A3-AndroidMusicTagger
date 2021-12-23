@@ -36,6 +36,7 @@ import fr.isep.musictagger.api.RecordingResults;
 import fr.isep.musictagger.fragments.ImageTag;
 import fr.isep.musictagger.fragments.PartOfSetTag;
 import fr.isep.musictagger.fragments.StringTag;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -131,21 +132,27 @@ public class TagActivity extends AppCompatActivity {
         disc = (PartOfSetTag) fragmentManager.findFragmentById(R.id.disc);
 
         Optional.ofNullable((RecordingResults.Recording) getIntent().getSerializableExtra(INTENT_IMPORTED_METADATA)).ifPresent(recording -> {
-            Optional.ofNullable(recording.release.releaseGroup).map(album -> album.id).ifPresent(id -> CoverArtArchiveApi.SERVICE.get(id).enqueue(new Callback<byte[]>() {
+            Optional.ofNullable(recording.release.id).ifPresent(id -> CoverArtArchiveApi.SERVICE.get(id).enqueue(new Callback<ResponseBody>() {
                 @Override
-                public void onResponse(@NonNull Call<byte[]> call, @NonNull Response<byte[]> response) {
-                    cover.setImportedValue(response.body());
-                    coverMime = response.headers().get("Content-Type");
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (Optional.ofNullable(response.body()).isPresent()) {
+                        try {
+                            cover.setImportedValue(response.body().bytes());
+                            coverMime = response.headers().get("Content-Type");
+                        } catch (IOException e) {
+                            Log.e("App", "IO exception occurred", e);
+                        }
+                    }
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<byte[]> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                     Log.w("App", String.format("GET %s failure", call.request().url()), t);
                 }
             }));
             title.setImportedValue(recording.title);
             Optional.ofNullable(recording.artistCredit).ifPresent(val -> artist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
-            album.setImportedValue(Optional.ofNullable(recording.release.releaseGroup).map(album -> album.title).orElse(recording.release.title));
+            Optional.ofNullable(recording.release.title).ifPresent(title::setImportedValue);
             Optional.ofNullable(recording.release.artistCredits).ifPresent(val -> albumArtist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
             Optional.ofNullable(recording.release.media.get(0)).ifPresent(medium -> {
                 disc.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d", medium.position)));
