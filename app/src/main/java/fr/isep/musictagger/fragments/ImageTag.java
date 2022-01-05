@@ -39,6 +39,7 @@ public class ImageTag extends Fragment {
     private ImageView importedImage;
     private ImageView localImage;
     private MaterialButton copyImported;
+    private MaterialButton reset;
     private final ActivityResultLauncher<Object> chooseFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
         @Override
@@ -70,6 +71,7 @@ public class ImageTag extends Fragment {
 
     public void setDefaultValue(final byte[] defaultValue) {
         this.defaultValue = defaultValue;
+        Optional.ofNullable(reset).ifPresent(View::callOnClick);
     }
 
     public void setImportedValue(final byte[] importedValue) {
@@ -87,7 +89,9 @@ public class ImageTag extends Fragment {
 
     public byte[] getValue() {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        ((BitmapDrawable) ((ImageView) requireView().findViewById(R.id.local_value)).getDrawable()).getBitmap().compress(Bitmap.CompressFormat.JPEG, 90, bs);
+        ((BitmapDrawable) ((ImageView) requireView().findViewById(R.id.local_value)).getDrawable())
+                .getBitmap()
+                .compress(Bitmap.CompressFormat.JPEG, 100, bs);
         return bs.toByteArray();
     }
 
@@ -140,7 +144,7 @@ public class ImageTag extends Fragment {
         importedImage = view.findViewById(R.id.imported_value);
         localImage = view.findViewById(R.id.local_value);
         copyImported = view.findViewById(R.id.copy_imported);
-        final MaterialButton reset = view.findViewById(R.id.reset_local);
+        reset = view.findViewById(R.id.reset_local);
 
         copyImported.setEnabled(false);
         Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
@@ -148,7 +152,7 @@ public class ImageTag extends Fragment {
         localImage.setOnClickListener(image -> chooseFile.launch(null));
         copyImported.setOnClickListener(btn -> localImage.setImageDrawable(importedImage.getDrawable()));
         reset.setOnClickListener(btn -> localImage.setImageBitmap(BitmapFactory.decodeByteArray(defaultValue, 0, defaultValue.length)));
-        reset.callOnClick();
+        Optional.ofNullable(defaultValue).ifPresent(defaultValue -> reset.callOnClick());
         view.findViewById(R.id.clear_local).setOnClickListener(btn -> localImage.setImageDrawable(null));
     }
 }

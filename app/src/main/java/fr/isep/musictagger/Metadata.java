@@ -36,14 +36,14 @@ public class Metadata {
             return number;
         }
 
-        public PartOfSet(@NonNull String s) {
-            String[] split = s.split("/");
+        public PartOfSet(@NonNull String s) throws IllegalArgumentException {
+            if (s.length() > 0) {
+                String[] split = s.split("/");
 
-            number = Integer.parseInt(split[0]);
-            if (split.length > 1) {
-                total = Integer.parseInt(split[1]);
+                number = Integer.parseInt(split[0]);
+                total = split.length > 1 ? Integer.parseInt(split[1]) : null;
             } else {
-                total = null;
+                throw new IllegalArgumentException();
             }
         }
 

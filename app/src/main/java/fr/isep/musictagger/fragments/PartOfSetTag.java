@@ -39,7 +39,11 @@ public class PartOfSetTag extends Fragment {
         final View view = requireView();
         final String value = ((EditText) view.findViewById(R.id.local_value)).getText().toString();
         final String total = ((EditText) view.findViewById(R.id.local_total)).getText().toString();
-        return new Metadata.PartOfSet(total.length() > 0 ? value + "/" + total : value);
+        try {
+            return new Metadata.PartOfSet(total.length() > 0 ? value + "/" + total : value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public PartOfSetTag() {
