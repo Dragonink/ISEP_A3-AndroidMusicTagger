@@ -16,19 +16,20 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/open_file_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/choose_file" />
+            android:padding="24dp"
+            android:text="@string/choose_file"
+            app:icon="@android:drawable/stat_sys_upload" />
 
         <TextView
             android:id="@+id/selected_file"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="SELECTED FILE"
             android:visibility="gone" />
     </LinearLayout>
 
@@ -43,19 +44,21 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/main_ll1">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/search_metadata"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/search_metadata" />
+            android:text="@string/search_metadata"
+            app:icon="@android:drawable/ic_menu_search" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/manually_tag"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/manually_tag" />
+            android:text="@string/manually_tag"
+            app:icon="@android:drawable/ic_menu_edit" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
