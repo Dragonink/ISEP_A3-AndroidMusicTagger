@@ -18,9 +18,23 @@ import com.google.android.material.button.MaterialButton;
 import java.util.Optional;
 
 import fr.isep.musictagger.R;
+import fr.isep.musictagger.TagActivity;
 
-public class StringTag extends Fragment {
+public class StringTag extends Fragment implements TagActivity.TagFragment {
     public static final int FRAGMENT = R.layout.frag_tag_string;
+
+    private MaterialButton copy;
+    private MaterialButton reset;
+
+    @Override
+    public void copyImported() {
+        Optional.ofNullable(copy).ifPresent(View::callOnClick);
+    }
+
+    @Override
+    public void resetLocal() {
+        Optional.ofNullable(reset).ifPresent(View::callOnClick);
+    }
 
     private String displayName;
     private String defaultValue;
@@ -70,20 +84,20 @@ public class StringTag extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle bundle) {
-        final MaterialButton copyImported = view.findViewById(R.id.copy_imported);
+        copy = view.findViewById(R.id.copy_imported);
         final EditText localValue = view.findViewById(R.id.local_value);
-        final MaterialButton reset = view.findViewById(R.id.reset_local);
+        reset = view.findViewById(R.id.reset_local);
 
-        copyImported.setEnabled(false);
+        copy.setEnabled(false);
         Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
         Optional.ofNullable(this.importedValue).ifPresent(val -> {
             ((EditText) view.findViewById(R.id.imported_value)).setText(val);
             if (val.length() > 0) {
-                copyImported.setOnClickListener(btn -> localValue.setText(importedValue));
-                copyImported.setEnabled(true);
+                copy.setOnClickListener(btn -> localValue.setText(importedValue));
+                copy.setEnabled(true);
             }
         });
         reset.setOnClickListener(btn -> localValue.setText(defaultValue));
-        reset.callOnClick();
+        resetLocal();
     }
 }

@@ -46,6 +46,12 @@ public class TagActivity extends AppCompatActivity {
     public static final String INTENT_SELECTED_FILE = "selectedFile";
     public static final String INTENT_IMPORTED_METADATA = "recording";
 
+    public interface TagFragment {
+        void copyImported();
+
+        void resetLocal();
+    }
+
     private final Predicate<String> checkPermission = perm -> checkSelfPermission(perm) == PackageManager.PERMISSION_GRANTED;
     private final ActivityResultLauncher<Object> saveFile = registerForActivityResult(new ActivityResultContract<Object, Uri>() {
         @NonNull
@@ -158,6 +164,25 @@ public class TagActivity extends AppCompatActivity {
                 disc.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d", medium.position)));
                 track.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d/%d", medium.trackOffset + 1, medium.trackCount)));
             });
+        });
+
+        ((FloatingActionButton) findViewById(R.id.action_copy_all)).setOnClickListener(btn -> {
+            cover.copyImported();
+            title.copyImported();
+            artist.copyImported();
+            album.copyImported();
+            albumArtist.copyImported();
+            track.copyImported();
+            disc.copyImported();
+        });
+        ((FloatingActionButton) findViewById(R.id.action_reset_all)).setOnClickListener(btn -> {
+            cover.resetLocal();
+            title.resetLocal();
+            artist.resetLocal();
+            album.resetLocal();
+            albumArtist.resetLocal();
+            track.resetLocal();
+            disc.resetLocal();
         });
 
         final Uri uri = getIntent().getParcelableExtra(INTENT_SELECTED_FILE);

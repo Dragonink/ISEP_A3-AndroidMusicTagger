@@ -6,4 +6,15 @@
     <string name="revert_changes">Revert changes</string>
     <string name="activity_tag_action_save">Save changes into file</string>
     <string name="search">Search</string>
+    <string name="local_value">Local value</string>
+    <string name="reset_local_value">Reset local value</string>
+    <string name="copy_imported">Replace local value by imported value</string>
+    <string name="imported_value">Imported value</string>
+    <string name="tag_name">Tag name</string>
+    <string name="slash">/</string>
+    <string name="imported_total">Imported total</string>
+    <string name="local_total">Local total</string>
+    <string name="clear_local_value">Clear local value</string>
+    <string name="reset_all_local_values">Reset all local values</string>
+    <string name="copy_all_imported">Replace all local values by imported values</string>
 </resources>

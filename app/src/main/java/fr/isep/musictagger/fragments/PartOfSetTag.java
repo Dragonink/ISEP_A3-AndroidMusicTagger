@@ -19,9 +19,23 @@ import java.util.Optional;
 
 import fr.isep.musictagger.Metadata;
 import fr.isep.musictagger.R;
+import fr.isep.musictagger.TagActivity;
 
-public class PartOfSetTag extends Fragment {
+public class PartOfSetTag extends Fragment implements TagActivity.TagFragment {
     public static final int FRAGMENT = R.layout.frag_tag_partofset;
+
+    private MaterialButton copy;
+    private MaterialButton reset;
+
+    @Override
+    public void copyImported() {
+        Optional.ofNullable(copy).ifPresent(View::callOnClick);
+    }
+
+    @Override
+    public void resetLocal() {
+        Optional.ofNullable(reset).ifPresent(View::callOnClick);
+    }
 
     private String displayName;
     private Metadata.PartOfSet defaultValue;
@@ -78,27 +92,27 @@ public class PartOfSetTag extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle bundle) {
-        final MaterialButton copyImported = view.findViewById(R.id.copy_imported);
+        copy = view.findViewById(R.id.copy_imported);
         final EditText localValue = view.findViewById(R.id.local_value);
         final EditText localTotal = view.findViewById(R.id.local_total);
-        final MaterialButton reset = view.findViewById(R.id.reset_local);
+        reset = view.findViewById(R.id.reset_local);
 
-        copyImported.setEnabled(false);
+        copy.setEnabled(false);
         Optional.ofNullable(this.displayName).ifPresent(((TextView) view.findViewById(R.id.displayname))::setText);
         Optional.ofNullable(this.importedValue).ifPresent(val -> {
             ((EditText) view.findViewById(R.id.imported_value)).setText(String.valueOf(val.getNumber()));
             val.getTotal().ifPresent(total -> ((EditText) view.findViewById(R.id.imported_total)).setText(String.valueOf(total)));
-            copyImported.setOnClickListener(btn -> {
+            copy.setOnClickListener(btn -> {
                 localValue.setText(val.getNumber());
                 val.getTotal().ifPresent(total -> localTotal.setText(String.valueOf(total)));
             });
-            copyImported.setEnabled(true);
+            copy.setEnabled(true);
         });
         reset.setOnClickListener(btn -> {
             final Optional<Metadata.PartOfSet> defaultValue = Optional.ofNullable(this.defaultValue);
             localValue.setText(defaultValue.map(val -> String.valueOf(val.getNumber())).orElse(null));
             localTotal.setText(defaultValue.flatMap(Metadata.PartOfSet::getTotal).map(String::valueOf).orElse(null));
         });
-        reset.callOnClick();
+        resetLocal();
     }
 }
