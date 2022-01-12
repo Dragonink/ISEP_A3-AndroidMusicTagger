@@ -54,16 +54,20 @@ public class RecordingResults implements Serializable {
     public int offset;
     public List<Recording> recordings;
 
-    public RecordingResults(@NonNull final RecordingResults results) {
-        count = results.count;
-        offset = results.offset;
-        recordings = new ArrayList<>();
-        results.recordings.forEach(recording -> recording.releases.forEach(release -> {
-            Recording newRecording = new Recording();
-            newRecording.title = recording.title;
-            newRecording.artistCredit = recording.artistCredit;
-            newRecording.release = release;
-            recordings.add(newRecording);
-        }));
+    public RecordingResults(@NonNull final RecordingResults results) throws IllegalArgumentException {
+        try {
+            count = results.count;
+            offset = results.offset;
+            recordings = new ArrayList<>();
+            results.recordings.forEach(recording -> recording.releases.forEach(release -> {
+                Recording newRecording = new Recording();
+                newRecording.title = recording.title;
+                newRecording.artistCredit = recording.artistCredit;
+                newRecording.release = release;
+                recordings.add(newRecording);
+            }));
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException();
+        }
     }
 }

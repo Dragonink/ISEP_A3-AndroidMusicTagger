@@ -9,11 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -89,24 +91,41 @@ public class SearchActivity extends AppCompatActivity {
         final Parcelable uri = getIntent().getParcelableExtra(TagActivity.INTENT_SELECTED_FILE);
 
         final RecyclerView recycler = findViewById(R.id.recycler);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recycler.setLayoutManager(layoutManager);
+        recycler.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
 
         findViewById(R.id.search_button).setOnClickListener(btn -> {
             final Context ctx = this;
             final EditText editText = findViewById(R.id.searchbar);
             if (editText.getText().length() > 0) {
+                final ProgressBar progress = findViewById(R.id.progress);
+                progress.setVisibility(View.VISIBLE);
                 btn.setEnabled(false);
                 MusicBrainzApi.SERVICE.search(editText.getText().toString()).enqueue(new Callback<RecordingResults>() {
                     @Override
                     public void onResponse(@NonNull Call<RecordingResults> call, @NonNull Response<RecordingResults> response) {
+                        progress.setVisibility(View.GONE);
                         Optional.ofNullable(response.body())
-                                .map(RecordingResults::new)
+                                .flatMap(results -> {
+                                    try {
+                                        return Optional.of(new RecordingResults(results));
+                                    } catch (IllegalArgumentException e) {
+                                        Log.e("App", "Invalid results format", e);
+                                        new AlertDialog.Builder(ctx)
+                                                .setMessage("Sorry ! Something went wrong. Please try again.")
+                                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                                                .show();
+                                        return Optional.empty();
+                                    }
+                                })
                                 .ifPresent(recordings -> recycler.setAdapter(new ResultAdapter(ctx, uri, recordings)));
                         btn.setEnabled(true);
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<RecordingResults> call, @NonNull Throwable t) {
+                        progress.setVisibility(View.GONE);
                         Log.e("App", String.format("GET %s failure", call.request().url()), t);
                         new AlertDialog.Builder(ctx)
                                 .setMessage("Sorry ! Something went wrong. Please try again.")

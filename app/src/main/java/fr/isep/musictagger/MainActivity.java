@@ -35,15 +35,17 @@ public class MainActivity extends AppCompatActivity {
         public Uri parseResult(final int resultCode, @Nullable final Intent intent) {
             return Optional.ofNullable(intent).map(Intent::getData).orElse(null);
         }
-    }, uri -> {
-        this.uri = uri;
+    }, selectedUri -> {
+        this.uri = selectedUri;
         Log.d("App", String.format("Selected file %s", uri));
 
-        TextView tv = findViewById(R.id.selected_file);
-        String[] path = uri.getLastPathSegment().replace(":", "/").split("/");
-        tv.setText(path[path.length - 1]);
-        tv.setVisibility(View.VISIBLE);
-        findViewById(R.id.main_ll2).setVisibility(View.VISIBLE);
+        Optional.ofNullable(uri).ifPresent(uri -> {
+            TextView tv = findViewById(R.id.selected_file);
+            String[] path = uri.getLastPathSegment().replace(":", "/").split("/");
+            tv.setText(path[path.length - 1]);
+            tv.setVisibility(View.VISIBLE);
+            findViewById(R.id.main_ll2).setVisibility(View.VISIBLE);
+        });
     });
 
     private @Nullable
