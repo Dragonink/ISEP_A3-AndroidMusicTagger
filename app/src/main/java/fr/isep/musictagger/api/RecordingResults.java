@@ -59,15 +59,19 @@ public class RecordingResults implements Serializable {
             count = results.count;
             offset = results.offset;
             recordings = new ArrayList<>();
-            results.recordings.forEach(recording -> recording.releases.forEach(release -> {
-                Recording newRecording = new Recording();
-                newRecording.title = recording.title;
-                newRecording.artistCredit = recording.artistCredit;
-                newRecording.release = release;
-                recordings.add(newRecording);
-            }));
+            results.recordings.forEach(recording -> {
+                if (recording.releases != null) {
+                    recording.releases.forEach(release -> {
+                        Recording newRecording = new Recording();
+                        newRecording.title = recording.title;
+                        newRecording.artistCredit = recording.artistCredit;
+                        newRecording.release = release;
+                        recordings.add(newRecording);
+                    });
+                }
+            });
         } catch (NullPointerException e) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(e);
         }
     }
 }

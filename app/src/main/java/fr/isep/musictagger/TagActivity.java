@@ -158,7 +158,7 @@ public class TagActivity extends AppCompatActivity {
             }));
             title.setImportedValue(recording.title);
             Optional.ofNullable(recording.artistCredit).ifPresent(val -> artist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
-            Optional.ofNullable(recording.release.title).ifPresent(title::setImportedValue);
+            Optional.ofNullable(recording.release.title).ifPresent(album::setImportedValue);
             Optional.ofNullable(recording.release.artistCredits).ifPresent(val -> albumArtist.setImportedValue(RecordingResults.Recording.ArtistCredit.credit(val)));
             Optional.ofNullable(recording.release.media.get(0)).ifPresent(medium -> {
                 disc.setImportedValue(new Metadata.PartOfSet(String.format(Locale.getDefault(), "%d", medium.position)));
